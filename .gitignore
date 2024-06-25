@@ -1,0 +1,20 @@
+# Top-level .gitignore
+
+# NodeJS project (server-encryptor)
+server-encryptor/node_modules/
+server-encryptor/dist/
+server-encryptor/.env
+
+# NextJS project (ui)
+ui/node_modules/
+ui/.next/
+ui/out/
+ui/.env.local
+ui/.env.development.local
+ui/.env.test.local
+ui/.env.production.local
+
+# Common
+.DS_Store
+.idea/
+.vscode/
