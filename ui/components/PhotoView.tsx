@@ -9,7 +9,7 @@ interface PhotoViewProps {
 }
 
 const PhotoView: React.FC<PhotoViewProps> = ({ url, isHorizontal }) => {
-	const [encrypted, setEncrypted] = useState<boolean>(true);
+	const [encrypted, setEncrypted] = useState<boolean>(false);
 
 	const aspectRatioClass = isHorizontal ? "aspect-w-16 aspect-h-9" : "aspect-w-9 aspect-h-16";
 
