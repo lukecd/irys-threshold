@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { CiLock } from "react-icons/ci";
 import Spinner from "./Spinner";
 import { hasNft, switchNetwork } from "@/nft-interaction/nft-utils";
-import { getPorterUri, ThresholdMessageKit, decrypt, domains } from "@nucypher/taco";
+import { getPorterUri, ThresholdMessageKit, decrypt, domains, initialize } from "@nucypher/taco";
 import { ethers } from "ethers";
 
 interface PhotoViewProps {
@@ -56,7 +56,10 @@ const PhotoView: React.FC<PhotoViewProps> = ({ url, isHorizontal }) => {
 				await provider.send("eth_requestAccounts", []);
 				const signer = provider.getSigner();
 
+				// Test data. This is just a simple encrypted string.
 				const response = await fetch(`https://gateway.irys.xyz/isD7URj_FqF7h_V-gfqqGgG_JmNL1xThjS1LDSRUEg8`);
+
+				// This decrypts the image for the component
 				// const response = await fetch(`https://gateway.irys.xyz/${url}`);
 				const dataJson = await response.text();
 				console.log({ dataJson });
@@ -64,6 +67,7 @@ const PhotoView: React.FC<PhotoViewProps> = ({ url, isHorizontal }) => {
 				const encryptedMessage = ThresholdMessageKit.fromBytes(Buffer.from(JSON.parse(dataJson), "hex"));
 				console.log({ encryptedMessage });
 
+				await initialize();
 				const decryptedMessage = await decrypt(
 					provider,
 					domains.TESTNET,
