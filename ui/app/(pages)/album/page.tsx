@@ -2,11 +2,11 @@ import React from "react";
 import PhotoView from "@/components/PhotoView";
 
 const images = [
-	{ src: "/temp/photo1.png", isHorizontal: true },
-	{ src: "/temp/photo2.png", isHorizontal: true },
-	{ src: "/temp/photo3.png", isHorizontal: true },
-	{ src: "/temp/photo4.png", isHorizontal: false },
-	{ src: "/temp/photo5.png", isHorizontal: true },
+	{ src: "XBSUf6nSIv2OUqpzZrcCqG2x6Kwq3eAqLaPZECCBPvY", isHorizontal: true },
+	{ src: "-qeq2KZPRvYPFfL12F97F0Atzr3DPdYHAe5Fr7oAKsU", isHorizontal: true },
+	{ src: "3YVy_UOzLHnaywuJEoRB8J6Ku3AlCJmf82jVeJjzY8Y", isHorizontal: true },
+	{ src: "RjLOeKXZdA5JAjEtgjW-T6TKzBqnxnqjwOSMGHVxRFM", isHorizontal: false },
+	{ src: "CqWO90ydOalAbkDO9WEO6VykuIJMvBLxlHNYmFOaTYk", isHorizontal: true },
 ];
 
 const Page: React.FC = () => {

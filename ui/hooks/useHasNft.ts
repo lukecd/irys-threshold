@@ -1,6 +1,7 @@
+import { useState, useEffect, useCallback } from "react";
 import { createPublicClient, createWalletClient, custom, http, Address } from "viem";
 import { sepolia } from "viem/chains";
-import IrysThresholdKeyABI from "./IrysThresholdKeyABI";
+import IrysThresholdKeyABI from "../nft-interaction/IrysThresholdKeyABI";
 
 const contractAddress = process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS as Address;
 
@@ -21,49 +22,44 @@ if (typeof window !== "undefined" && window.ethereum) {
 	console.error("Ethereum provider is not available");
 }
 
-export const mintNft = async (): Promise<void> => {
+const hasNft = async (): Promise<boolean> => {
 	if (!walletClient) {
 		throw new Error("Wallet client is not available");
 	}
 
 	try {
-		const [account] = await walletClient.getAddresses();
-		const hash = await walletClient.writeContract({
-			address: contractAddress,
-			abi: IrysThresholdKeyABI,
-			functionName: "safeMint",
-			args: [account],
-			account,
-		});
-		console.log("Transaction Hash:", hash);
-		const receipt = await publicClient.waitForTransactionReceipt({ hash });
-		console.log("Transaction was mined in block:", receipt.blockNumber);
-	} catch (error) {
-		console.error("Minting failed:", error);
-	}
-};
-
-export const hasNft = async (): Promise<boolean> => {
-	if (!walletClient) {
-		throw new Error("Wallet client is not available");
-	}
-
-	try {
-		console.log({ walletClient });
 		const [address] = await walletClient.getAddresses();
-		console.log("address");
-		console.log({ address });
-		// console.log(publicClient);
 		const balance = (await publicClient.readContract({
 			address: contractAddress,
 			abi: IrysThresholdKeyABI,
 			functionName: "balanceOf",
 			args: [address],
 		})) as bigint;
-		console.log({ balance });
 		return balance > 0;
 	} catch (error) {
 		console.error("Checking NFT ownership failed:", error);
 		return false;
 	}
 };
+
+const useHasNft = () => {
+	const [hasNftState, setHasNftState] = useState<boolean | null>(null);
+
+	const checkHasNft = useCallback(async () => {
+		const result = await hasNft();
+		if (result) {
+			setHasNftState(true);
+		}
+		return result;
+	}, []);
+
+	useEffect(() => {
+		if (hasNftState === null) {
+			checkHasNft();
+		}
+	}, [hasNftState, checkHasNft]);
+
+	return hasNftState;
+};
+
+export default useHasNft;

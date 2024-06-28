@@ -3,7 +3,7 @@ import React, { ReactNode } from "react";
 
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultConfig, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
-import { WagmiProvider } from "wagmi";
+import { WagmiProvider, http } from "wagmi";
 import { berachainTestnet, sepolia } from "wagmi/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
@@ -15,6 +15,9 @@ const config = getDefaultConfig({
 	projectId: process.env.NEXT_PUBLIC_PROJECT_ID || "",
 	chains: [sepolia],
 	ssr: true, // If your dApp uses server side rendering (SSR)
+	transports: {
+		[sepolia.id]: http(process.env.NEXT_PUBLIC_SEPOLIA_RPC),
+	},
 });
 
 type BodyProps = {

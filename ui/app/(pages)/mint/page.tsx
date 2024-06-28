@@ -83,7 +83,7 @@ const MintPage = () => {
 									minting ? "cursor-not-allowed" : "cursor-pointer"
 								}`}
 							>
-								{minting ? <Spinner /> : "Mint NFT"}
+								{minting ? <Spinner size="small" /> : "Mint NFT"}
 							</button>
 						</>
 					)}

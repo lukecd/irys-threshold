@@ -4,21 +4,22 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaInfoCircle, FaImages, FaBuromobelexperte } from "react-icons/fa";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { hasNft } from "@/nft-interaction/nft-utils";
+// import { hasNft } from "@/nft-interaction/nft-utils";
 import Image from "next/image";
 import { useAccount } from "wagmi";
-
+import useHasNft from "@/hooks/useHasNft";
 const SideNav: React.FC = () => {
 	const { isConnected } = useAccount();
-	const [hasToken, setHasToken] = useState(false);
+	// const [hasToken, setHasToken] = useState(false);
 	const [nftMetadata, setNftMetadata] = useState<any>(null);
+	const hasNft = useHasNft();
 
 	useEffect(() => {
 		const checkNftOwnership = async () => {
 			if (isConnected) {
-				const hasNftToken = await hasNft();
-				setHasToken(hasNftToken);
-				if (hasNftToken) {
+				// const hasNftToken = await hasNft();
+				// setHasToken(hasNftToken);
+				if (hasNft) {
 					const response = await fetch(process.env.NEXT_PUBLIC_NFT_METADATA_ADDRESS || "");
 					const data = await response.json();
 					setNftMetadata(data);
@@ -36,7 +37,7 @@ const SideNav: React.FC = () => {
 				<NavItem icon={<FaBuromobelexperte size={24} />} text="Mint NFT" href="/mint" />
 				<NavItem icon={<FaImages size={24} />} text="View Photos" href="/album" />
 			</div>
-			{hasToken && nftMetadata && (
+			{hasNft && nftMetadata && (
 				<div className="mt-10 pt-10 w-full">
 					<div className="border-4 border-accentOne p-2 rounded-lg w-full">
 						<div className="relative w-full aspect-w-1 aspect-h-1">
