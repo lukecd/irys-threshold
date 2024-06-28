@@ -16,9 +16,9 @@ Five images are encrypted with TACo and stored permanently on-chain using Irys. 
 - `/contract` - The NFT smart contract. Wallets that own this NFT can decrypt the images.
 - `/ui`- The token gating UI. The UI is open to anyone, but the content can only be decrypted by NFT holders.
 
-## Token Gating
+## Token-Gating
 
-Token gating ensures that only individuals possessing a specific NFT or ERC20 token can access certain content. Unlike traditional token gating platforms that restrict access to a centralized UI, decentralized environments require a different approach. In a decentralized setup where content is stored on-chain and publicly accessible, locking the UI is ineffective as users can directly access the on-chain content.
+Token gating ensures that only individuals possessing a specific NFT or ERC20 token can access certain content. Unlike traditional token-gating platforms that restrict access to a centralized UI, decentralized environments require a different approach. In a decentralized setup where content is stored on-chain and publicly accessible, locking the UI is ineffective as users can directly access the on-chain content.
 
 For decentralized token gating, data must be encrypted before storing it on-chain. Only token holders should be able to decrypt this data, ensuring that unauthorized users cannot access the content even if they manage to bypass the UI restrictions.
 
@@ -38,6 +38,12 @@ TACo enables end-to-end encrypted data sharing and communication without requiri
 
 ## Irys
 
-TOOD
+Irys enables permanent onchain data. Data on Irys is permanent, precise, and unconstrained.
+
+- **Permanent**: Data stored on Irys is censorship-resistant and immutable. There's no counterparty risk of data being removed.
+- **Precise**: Data is timestamped with a high-precision timestamp, providing a reliable sequence of events.
+- **Unconstrained**: There are no limits on file upload sizes. Users can always read, write, and discover data at scale.
+
+Irys offers near-instantaneous uploads. After uploading, the data is immediately available for download.
 
 By integrating TACo with Irys, users can leverage Irys' fast upload and data egress capabilities alongside TACo's secure encryption and decryption, ensuring that sensitive data remains private and accessible only to those with the appropriate tokens. This combination offers a robust solution for secure, decentralized token gating in various applications.

@@ -3,11 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { CiLock } from "react-icons/ci";
 import Spinner from "./Spinner";
-import { hasNft } from "@/nft-interaction/nft-utils";
+import { hasNft, switchNetwork } from "@/nft-interaction/nft-utils";
 import { getPorterUri, ThresholdMessageKit, decrypt, domains } from "@nucypher/taco";
-import { sepolia } from "viem/chains";
-import { createPublicClient, http, createWalletClient, custom } from "viem";
-import { sep } from "path";
+import { ethers } from "ethers";
 
 interface PhotoViewProps {
 	url: string;
@@ -18,6 +16,7 @@ const PhotoView: React.FC<PhotoViewProps> = ({ url, isHorizontal }) => {
 	const [encrypted, setEncrypted] = useState<boolean>(true);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [nftOwner, setNftOwner] = useState<boolean>(false);
+	const [networkError, setNetworkError] = useState<boolean>(false);
 
 	useEffect(() => {
 		const checkNftOwnership = async () => {
@@ -26,44 +25,69 @@ const PhotoView: React.FC<PhotoViewProps> = ({ url, isHorizontal }) => {
 			setNftOwner(ownsNft);
 		};
 
-		checkNftOwnership();
+		const checkNetwork = async () => {
+			// @ts-ignore
+			if (window.ethereum) {
+				try {
+					// @ts-ignore
+					const provider = new ethers.providers.Web3Provider(window.ethereum);
+					const network = await provider.getNetwork();
+					if (network.chainId !== 80002) {
+						setNetworkError(true);
+					} else {
+						checkNftOwnership();
+					}
+				} catch (error) {
+					console.error("Network check failed:", error);
+				}
+			}
+		};
+
+		checkNetwork();
 	}, []);
 
 	const handleDecrypt = async () => {
 		setLoading(true);
+		// @ts-ignore
+		if (window.ethereum) {
+			try {
+				//@ts-ignore
+				const provider = new ethers.providers.Web3Provider(window.ethereum);
+				await provider.send("eth_requestAccounts", []);
+				const signer = provider.getSigner();
 
-		const [account] = await window.ethereum.request({ method: "eth_requestAccounts" });
+				const response = await fetch(`https://gateway.irys.xyz/isD7URj_FqF7h_V-gfqqGgG_JmNL1xThjS1LDSRUEg8`);
+				// const response = await fetch(`https://gateway.irys.xyz/${url}`);
+				const dataJson = await response.text();
+				console.log({ dataJson });
 
-		const client = createWalletClient({
-			account: account,
-			chain: sepolia,
-			transport: custom(window.ethereum),
-		});
+				const encryptedMessage = ThresholdMessageKit.fromBytes(Buffer.from(JSON.parse(dataJson), "hex"));
+				console.log({ encryptedMessage });
 
-		const response = await fetch(`https://gateway.irys.xyz/${url}`);
-		const dataJson = await response.text();
-		console.log({ dataJson });
+				const decryptedMessage = await decrypt(
+					provider,
+					domains.TESTNET,
+					encryptedMessage,
+					getPorterUri(domains.TESTNET),
+					signer,
+				);
 
-		const encryptedMessage = ThresholdMessageKit.fromBytes(Buffer.from(JSON.parse(dataJson), "hex"));
-		console.log({ encryptedMessage });
-		const decryptedMessage = await decrypt(
-			account,
-			domains.TESTNET,
-			encryptedMessage,
-			getPorterUri(domains.TESTNET),
-			account,
-		);
-		console.log({ decryptedMessage });
-
-		setLoading(false);
-		setEncrypted(false);
+				setLoading(false);
+				setEncrypted(false);
+			} catch (error) {
+				console.error("Decryption failed:", error);
+				setLoading(false);
+			}
+		} else {
+			console.error("Ethereum provider is not available");
+		}
 	};
 
 	const aspectRatioClass = isHorizontal ? "aspect-w-16 aspect-h-9" : "aspect-w-9 aspect-h-16";
 
 	return (
 		<div
-			className={`relative ${aspectRatioClass} bg-mainBg flex items-center justify-center  border-4 border-accentTwo`}
+			className={`relative ${aspectRatioClass} bg-mainBg flex items-center justify-center border-4 border-accentTwo`}
 		>
 			{loading ? (
 				<div className="flex items-center justify-center w-full h-full">

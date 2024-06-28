@@ -6,23 +6,40 @@ import Image from "next/image";
 //@ts-ignore
 import confetti from "canvas-confetti";
 import Spinner from "@/components/Spinner"; // Assume you have a Spinner component
-import { useAccount } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-
-const NFT_METADATA_URL = "https://gateway.irys.xyz/Nk8ZZwM1XMrGXvhaqnKRPXY6nglGYt5DIAxo1d81JiE";
+import { ethers } from "ethers";
 
 const MintPage = () => {
-	const { isConnected } = useAccount();
+	const [isConnected, setIsConnected] = useState(false);
+	const [account, setAccount] = useState<string | null>(null);
 	const [hasToken, setHasToken] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [minting, setMinting] = useState(false);
 	const [nftMetadata, setNftMetadata] = useState<any>(null);
 
 	useEffect(() => {
-		const checkNftOwnership = async () => {
-			const hasNftToken = await hasNft();
-			setHasToken(hasNftToken);
+		const checkConnection = async () => {
+			if (window.ethereum) {
+				try {
+					const provider = new ethers.providers.Web3Provider(window.ethereum);
+					const accounts = await provider.listAccounts();
+					if (accounts.length > 0) {
+						const signer = provider.getSigner();
+						const userAccount = await signer.getAddress();
+						setAccount(userAccount);
+						setIsConnected(true);
+					}
+				} catch (error) {
+					console.error("Failed to check connection:", error);
+				}
+			}
 			setLoading(false);
+		};
+
+		const checkNftOwnership = async () => {
+			if (account) {
+				const ownsNft = await hasNft();
+				setHasToken(ownsNft);
+			}
 		};
 
 		const fetchNftMetadata = async () => {
@@ -32,13 +49,29 @@ const MintPage = () => {
 			setNftMetadata(data);
 		};
 
-		if (isConnected) {
+		checkConnection();
+		if (account) {
 			checkNftOwnership();
 			fetchNftMetadata();
-		} else {
-			setLoading(false);
 		}
-	}, [isConnected]);
+	}, [account]);
+
+	const connectWallet = async () => {
+		if (window.ethereum) {
+			try {
+				const provider = new ethers.providers.Web3Provider(window.ethereum);
+				await provider.send("eth_requestAccounts", []);
+				const signer = provider.getSigner();
+				const userAccount = await signer.getAddress();
+				setAccount(userAccount);
+				setIsConnected(true);
+			} catch (error) {
+				console.error("Connection failed:", error);
+			}
+		} else {
+			console.error("Ethereum provider is not available");
+		}
+	};
 
 	const handleMint = async () => {
 		setMinting(true);
@@ -79,8 +112,10 @@ const MintPage = () => {
 							<button
 								onClick={handleMint}
 								disabled={minting}
-								className={`w-[300px] mt-8 py-2 text-white bg-accentOne rounded hover:bg-accentTwo transition ${
-									minting ? "cursor-not-allowed" : "cursor-pointer"
+								className={`w-[300px] mt-8 py-2 text-white rounded transition ${
+									minting
+										? "cursor-not-allowed bg-white border-accentOne"
+										: "cursor-pointer bg-accentOne hover:bg-accentTwo  "
 								}`}
 							>
 								{minting ? <Spinner size="small" /> : "Mint NFT"}
@@ -92,7 +127,13 @@ const MintPage = () => {
 				<>
 					<div className="flex flex-col justify-center items-center mt-[100px]">
 						<p className="text-3xl text-navBg">Connect your wallet first!</p>
-						<div className="">
+						<button
+							onClick={connectWallet}
+							className="mt-4 px-4 py-2 bg-accentOne text-white rounded hover:bg-accentTwo transition"
+						>
+							Connect Wallet
+						</button>
+						<div className="mt-8">
 							<svg width="500" height="300" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<path
 									d="M90,50 Q50,90 10,50"

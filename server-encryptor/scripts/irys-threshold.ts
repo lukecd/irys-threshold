@@ -7,23 +7,23 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const encryptData = async (dataToEncrypt: string) => {
-	// const privateKey: string = process.env.PRIVATE_KEY;
-	// const rpcUrl = "https://eth-sepolia.api.onfinality.io/public";
-	const provider = new ethers.providers.JsonRpcProvider();
-	const signer = await provider.getSigner();
+	const privateKey: string = process.env.PRIVATE_KEY || "";
+	const rpcUrl = "https://rpc-amoy.polygon.technology.";
+	// const rpcUrl = "https://eth-sepolia.g.alchemy.com/v2/GhM1EP2edH5wym1A9B0u2NifZVgWAmz2";
+	const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+	const signer = new ethers.Wallet(privateKey, provider);
 
 	// Initialize the TACo library first
 	await initialize();
-
 	const ownNft = new conditions.predefined.erc721.ERC721Balance({
-		contractAddress: "0x3a4bFDe618C7E0EC1D444F7fe86c8984Fb1E70CE",
-		chain: 11155111,
+		contractAddress: "0x0e015827278f1bC4fA8d155fD7E83668A892507d",
+		chain: 80002,
 		returnValueTest: {
 			comparator: ">",
 			value: 0,
 		},
 	});
-	console.log({ ownNft });
+
 	const ritualId = 0;
 	const messageKit = await encrypt(provider, domains.TESTNET, dataToEncrypt, ownNft, ritualId, signer);
 	const encryptedMessageHex = toHexString(messageKit.toBytes());
@@ -32,8 +32,9 @@ const encryptData = async (dataToEncrypt: string) => {
 
 const storeData = async (dataToStore: string) => {
 	const irys = new Irys({ network: "mainnet", token: "ethereum", key: process.env.PRIVATE_KEY });
-	const dataToUpload = JSON.stringify(dataToStore);
-	const receipt = await irys.upload(dataToUpload);
+	// const dataToUpload = JSON.stringify(dataToStore);
+	const tags = [{ name: "Content-Type", value: "text/plain" }];
+	const receipt = await irys.upload(dataToStore, { tags });
 	console.log(`Data uploaded ==> https://gateway.irys.xyz/${receipt.id}`);
 };
 
@@ -48,14 +49,18 @@ const processImages = async (): Promise<void> => {
 				const binaryString: string = imageData.toString("binary");
 
 				try {
-					const encryptedData: string = await encryptData(binaryString);
-					await storeData(encryptedData);
+					// const encryptedData: string = await encryptData(binaryString);
+					// await storeData(encryptedData);
 					console.log(`Processed and uploaded ${file}`);
 				} catch (error) {
 					console.error(`Error processing ${file}:`, error);
 				}
 			}
 		}
+
+		console.log("And a pure text example");
+		const encryptedData: string = await encryptData("Secret sauce");
+		await storeData(encryptedData);
 	} catch (error) {
 		console.error("Failed to read directory:", error);
 	}

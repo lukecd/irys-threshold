@@ -1,41 +1,31 @@
 import { useState, useEffect, useCallback } from "react";
-import { createPublicClient, createWalletClient, custom, http, Address } from "viem";
-import { sepolia } from "viem/chains";
+import { ethers } from "ethers";
 import IrysThresholdKeyABI from "../nft-interaction/IrysThresholdKeyABI";
 
-const contractAddress = process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS as Address;
+const contractAddress = process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS as string;
 
-const publicClient = createPublicClient({
-	chain: sepolia,
-	transport: http("https://gateway.tenderly.co/public/sepolia"),
-});
-
-let walletClient;
-
+let provider: ethers.providers.Web3Provider | null = null;
+let signer: ethers.Signer | null = null;
+//@ts-ignore
 if (typeof window !== "undefined" && window.ethereum) {
-	walletClient = createWalletClient({
-		chain: sepolia,
-		transport: custom(window.ethereum),
-	});
+	//@ts-ignore
+	provider = new ethers.providers.Web3Provider(window.ethereum);
+	signer = provider.getSigner();
 } else {
-	walletClient = null;
 	console.error("Ethereum provider is not available");
 }
 
 const hasNft = async (): Promise<boolean> => {
-	if (!walletClient) {
-		throw new Error("Wallet client is not available");
+	if (!signer) {
+		throw new Error("Wallet signer is not available");
 	}
 
 	try {
-		const [address] = await walletClient.getAddresses();
-		const balance = (await publicClient.readContract({
-			address: contractAddress,
-			abi: IrysThresholdKeyABI,
-			functionName: "balanceOf",
-			args: [address],
-		})) as bigint;
-		return balance > 0;
+		//@ts-ignore
+		const contract = new ethers.Contract(contractAddress, IrysThresholdKeyABI, provider);
+		const address = await signer.getAddress();
+		const balance = await contract.balanceOf(address);
+		return balance.gt(0);
 	} catch (error) {
 		console.error("Checking NFT ownership failed:", error);
 		return false;
