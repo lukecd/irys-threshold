@@ -17,9 +17,9 @@ dotenv.config();
 
 ////////////////////////////////////////// CONSTANTS //////////////////////////////////////////
 
-const rpcUrl = "https://rpc-amoy.polygon.technology.";
+const RPC_URL = "https://rpc-amoy.polygon.technology.";
 // const rpcUrl = "https://eth-sepolia.g.alchemy.com/v2/GhM1EP2edH5wym1A9B0u2NifZVgWAmz2";
-const PROVIDER = new ethers.providers.JsonRpcProvider(rpcUrl);
+const PROVIDER = new ethers.providers.JsonRpcProvider(RPC_URL);
 const SIGNER = new ethers.Wallet(process.env.PRIVATE_KEY || "", PROVIDER);
 const RITUAL_ID = 0;
 const OWNS_NFT = new conditions.predefined.erc721.ERC721Balance({
@@ -60,6 +60,7 @@ const downloadData = async (txId: string): Promise<string> => {
 
 const decryptData = async (dataJson: string): Promise<string> => {
 	const encryptedMessage = ThresholdMessageKit.fromBytes(Buffer.from(JSON.parse(dataJson), "hex"));
+	console.log(`Data parsed `);
 	const decryptedMessage = await decrypt(
 		PROVIDER,
 		domains.TESTNET,
