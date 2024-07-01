@@ -29,10 +29,8 @@ const OWNS_NFT = new conditions.predefined.erc721.ERC721Balance({
 		value: 0,
 	},
 });
-const IRYS = new Irys({ network: "mainnet", token: "ethereum", key: process.env.PRIVATE_KEY });
 
 ////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////
-
 const encryptData = async (message: string): Promise<string> => {
 	const messageKit = await encrypt(PROVIDER, domains.TESTNET, message, OWNS_NFT, RITUAL_ID, SIGNER);
 	const encryptedMessageHex = toHexString(messageKit.toBytes());
@@ -44,7 +42,8 @@ const encryptData = async (message: string): Promise<string> => {
 const uploadData = async (encryptedMessageHex: string): Promise<string> => {
 	const dataToUpload = JSON.stringify(encryptedMessageHex);
 	const tags = [{ name: "Content-Type", value: "text/plain" }];
-	const receipt = await IRYS.upload(dataToUpload, { tags });
+	const irys = new Irys({ network: "mainnet", token: "ethereum", key: process.env.PRIVATE_KEY });
+	const receipt = await irys.upload(dataToUpload, { tags });
 	console.log(`Data uploaded ==> https://gateway.irys.xyz/${receipt.id}`);
 	return receipt.id;
 };
