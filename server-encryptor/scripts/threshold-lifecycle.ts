@@ -19,10 +19,10 @@ dotenv.config();
 
 const rpcUrl = "https://rpc-amoy.polygon.technology.";
 // const rpcUrl = "https://eth-sepolia.g.alchemy.com/v2/GhM1EP2edH5wym1A9B0u2NifZVgWAmz2";
-const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-const signer = new ethers.Wallet(process.env.PRIVATE_KEY || "", provider);
-const ritualId = 0;
-const ownsNft = new conditions.predefined.erc721.ERC721Balance({
+const PROVIDER = new ethers.providers.JsonRpcProvider(rpcUrl);
+const SIGNER = new ethers.Wallet(process.env.PRIVATE_KEY || "", PROVIDER);
+const RITUAL_ID = 0;
+const OWNS_NFT = new conditions.predefined.erc721.ERC721Balance({
 	contractAddress: "0x0e015827278f1bC4fA8d155fD7E83668A892507d",
 	chain: 80002,
 	returnValueTest: {
@@ -30,12 +30,12 @@ const ownsNft = new conditions.predefined.erc721.ERC721Balance({
 		value: 0,
 	},
 });
-const irys = new Irys({ network: "mainnet", token: "ethereum", key: process.env.PRIVATE_KEY });
+const IRYS = new Irys({ network: "mainnet", token: "ethereum", key: process.env.PRIVATE_KEY });
 
 ////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////
 
 const encryptData = async (message: string): Promise<string> => {
-	const messageKit = await encrypt(provider, domains.TESTNET, message, ownsNft, ritualId, signer);
+	const messageKit = await encrypt(PROVIDER, domains.TESTNET, message, OWNS_NFT, RITUAL_ID, SIGNER);
 	const encryptedMessageHex = toHexString(messageKit.toBytes());
 	console.log(`Data encrypted ==> `);
 	console.log(encryptedMessageHex);
@@ -45,7 +45,7 @@ const encryptData = async (message: string): Promise<string> => {
 const uploadData = async (encryptedMessageHex: string): Promise<string> => {
 	const dataToUpload = JSON.stringify(encryptedMessageHex);
 	const tags = [{ name: "Content-Type", value: "text/plain" }];
-	const receipt = await irys.upload(dataToUpload, { tags });
+	const receipt = await IRYS.upload(dataToUpload, { tags });
 	console.log(`Data uploaded ==> https://gateway.irys.xyz/${receipt.id}`);
 	return receipt.id;
 };
@@ -60,14 +60,12 @@ const downloadData = async (txId: string): Promise<string> => {
 
 const decryptData = async (dataJson: string): Promise<string> => {
 	const encryptedMessage = ThresholdMessageKit.fromBytes(Buffer.from(JSON.parse(dataJson), "hex"));
-	console.log(encryptedMessage);
-
 	const decryptedMessage = await decrypt(
-		provider,
+		PROVIDER,
 		domains.TESTNET,
 		encryptedMessage,
 		getPorterUri(domains.TESTNET),
-		signer,
+		SIGNER,
 	);
 	console.log(`Data decrypted ==> `);
 	console.log(decryptedMessage);
