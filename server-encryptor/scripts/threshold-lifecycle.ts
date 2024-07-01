@@ -18,7 +18,6 @@ dotenv.config();
 ////////////////////////////////////////// CONSTANTS //////////////////////////////////////////
 
 const RPC_URL = "https://rpc-amoy.polygon.technology.";
-// const rpcUrl = "https://eth-sepolia.g.alchemy.com/v2/GhM1EP2edH5wym1A9B0u2NifZVgWAmz2";
 const PROVIDER = new ethers.providers.JsonRpcProvider(RPC_URL);
 const SIGNER = new ethers.Wallet(process.env.PRIVATE_KEY || "", PROVIDER);
 const RITUAL_ID = 0;
