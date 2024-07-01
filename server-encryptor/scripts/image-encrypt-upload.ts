@@ -6,32 +6,35 @@ import Irys from "@irys/sdk";
 import dotenv from "dotenv";
 dotenv.config();
 
+////////////////////////////////////////// CONSTANTS //////////////////////////////////////////
+
+const rpcUrl = "https://rpc-amoy.polygon.technology.";
+// const rpcUrl = "https://eth-sepolia.g.alchemy.com/v2/GhM1EP2edH5wym1A9B0u2NifZVgWAmz2";
+const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+const signer = new ethers.Wallet(process.env.PRIVATE_KEY || "", provider);
+const ritualId = 0;
+const ownNft = new conditions.predefined.erc721.ERC721Balance({
+	contractAddress: "0x0e015827278f1bC4fA8d155fD7E83668A892507d",
+	chain: 80002,
+	returnValueTest: {
+		comparator: ">",
+		value: 0,
+	},
+});
+const irys = new Irys({ network: "mainnet", token: "ethereum", key: process.env.PRIVATE_KEY });
+
+// Initialize the TACo library first
+await initialize();
+
+////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////
+
 const encryptData = async (dataToEncrypt: string) => {
-	const privateKey: string = process.env.PRIVATE_KEY || "";
-	const rpcUrl = "https://rpc-amoy.polygon.technology.";
-	// const rpcUrl = "https://eth-sepolia.g.alchemy.com/v2/GhM1EP2edH5wym1A9B0u2NifZVgWAmz2";
-	const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-	const signer = new ethers.Wallet(privateKey, provider);
-
-	// Initialize the TACo library first
-	await initialize();
-	const ownNft = new conditions.predefined.erc721.ERC721Balance({
-		contractAddress: "0x0e015827278f1bC4fA8d155fD7E83668A892507d",
-		chain: 80002,
-		returnValueTest: {
-			comparator: ">",
-			value: 0,
-		},
-	});
-
-	const ritualId = 0;
 	const messageKit = await encrypt(provider, domains.TESTNET, dataToEncrypt, ownNft, ritualId, signer);
 	const encryptedMessageHex = toHexString(messageKit.toBytes());
-	return encryptedMessageHex;
+	return JSON.stringify(encryptedMessageHex);
 };
 
 const storeData = async (dataToStore: string) => {
-	const irys = new Irys({ network: "mainnet", token: "ethereum", key: process.env.PRIVATE_KEY });
 	// const dataToUpload = JSON.stringify(dataToStore);
 	const tags = [{ name: "Content-Type", value: "text/plain" }];
 	const receipt = await irys.upload(dataToStore, { tags });
