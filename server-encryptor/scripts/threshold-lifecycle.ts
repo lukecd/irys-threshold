@@ -56,6 +56,11 @@ const downloadData = async (txId: string): Promise<string> => {
 	return dataJson;
 };
 
+const convertToHumanReadable = (uint8Array: Uint8Array): string => {
+	const decoder = new TextDecoder("utf-8");
+	return decoder.decode(uint8Array);
+};
+
 const decryptData = async (dataJson: string): Promise<string> => {
 	const encryptedMessage = ThresholdMessageKit.fromBytes(Buffer.from(JSON.parse(dataJson), "hex"));
 	console.log(`Data parsed `);
@@ -67,7 +72,7 @@ const decryptData = async (dataJson: string): Promise<string> => {
 		SIGNER,
 	);
 	console.log(`Data decrypted ==> `);
-	console.log(decryptedMessage);
+	console.log(convertToHumanReadable(decryptedMessage));
 	return decryptedMessage.toString();
 };
 
