@@ -8,7 +8,7 @@ Five images are encrypted with TACo and stored permanently on-chain using Irys. 
 
 ## Sub-projects
 
-- `[/server-encryptor-project`](./server-encryptor-project/README.md) - A NodeJS script that encrypts images from the local drive. Can be customized to encrypt any data.
+- [`/server-encryptor-project`](./server-encryptor-project/README.md) - A NodeJS script that encrypts images from the local drive. Can be customized to encrypt any data.
 - [`/contract-project`](./contract-project/README.md) - The NFT smart contract. Wallets that own this NFT can decrypt the images.
 - [`/ui-project`](./ui-project/README.md) - The token gating UI. The UI is open to anyone, but the content can only be decrypted by NFT holders.
 
