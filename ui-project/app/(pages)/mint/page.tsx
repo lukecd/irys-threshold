@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { hasNft, mintNft } from "@/wallet-interaction/wallet-utils";
+import { connectWallet, hasNft, mintNft, switchNetwork } from "@/wallet-interaction/wallet-utils";
 import Image from "next/image";
 //@ts-ignore
 import confetti from "canvas-confetti";
 import Spinner from "@/components/Spinner"; // Assume you have a Spinner component
-import { ethers } from "ethers";
 
 const MintPage = () => {
 	const [isConnected, setIsConnected] = useState(false);
@@ -15,23 +14,14 @@ const MintPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [minting, setMinting] = useState(false);
 	const [nftMetadata, setNftMetadata] = useState<any>(null);
+	const [networkError, setNetworkError] = useState(false);
 
 	useEffect(() => {
 		const checkConnection = async () => {
-			if (window.ethereum) {
-				try {
-					const provider = new ethers.providers.Web3Provider(window.ethereum);
-					const accounts = await provider.listAccounts();
-					if (accounts.length > 0) {
-						const signer = provider.getSigner();
-						const userAccount = await signer.getAddress();
-						setAccount(userAccount);
-						setIsConnected(true);
-					}
-				} catch (error) {
-					console.error("Failed to check connection:", error);
-				}
-			}
+			const { account, networkError } = await connectWallet();
+			setAccount(account);
+			setIsConnected(!!account);
+			setNetworkError(networkError);
 			setLoading(false);
 		};
 
@@ -56,21 +46,11 @@ const MintPage = () => {
 		}
 	}, [account]);
 
-	const connectWallet = async () => {
-		if (window.ethereum) {
-			try {
-				const provider = new ethers.providers.Web3Provider(window.ethereum);
-				await provider.send("eth_requestAccounts", []);
-				const signer = provider.getSigner();
-				const userAccount = await signer.getAddress();
-				setAccount(userAccount);
-				setIsConnected(true);
-			} catch (error) {
-				console.error("Connection failed:", error);
-			}
-		} else {
-			console.error("Ethereum provider is not available");
-		}
+	const handleConnectWallet = async () => {
+		const { account, networkError } = await connectWallet();
+		setAccount(account);
+		setIsConnected(!!account);
+		setNetworkError(networkError);
 	};
 
 	const handleMint = async () => {
@@ -115,7 +95,7 @@ const MintPage = () => {
 								className={`w-[300px] mt-8 py-2 text-white rounded transition ${
 									minting
 										? "cursor-not-allowed bg-white border-accentOne"
-										: "cursor-pointer bg-accentOne hover:bg-accentTwo  "
+										: "cursor-pointer bg-accentOne hover:bg-accentTwo"
 								}`}
 							>
 								{minting ? <Spinner size="small" /> : "Mint NFT"}
@@ -128,7 +108,7 @@ const MintPage = () => {
 					<div className="flex flex-col justify-center items-center mt-[100px]">
 						<p className="text-3xl text-navBg">Connect your wallet first!</p>
 						<button
-							onClick={connectWallet}
+							onClick={handleConnectWallet}
 							className="mt-4 px-4 py-2 bg-accentOne text-white rounded hover:bg-accentTwo transition"
 						>
 							Connect Wallet

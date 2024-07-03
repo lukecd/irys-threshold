@@ -65,6 +65,8 @@ export const mintNft = async (): Promise<void> => {
 
 	try {
 		const contract = new ethers.Contract(contractAddress, IrysThresholdKeyABI, signer);
+		console.log({ contract });
+
 		const tx = await contract.safeMint(await signer.getAddress());
 		console.log("Transaction Hash:", tx.hash);
 		const receipt = await tx.wait();
@@ -98,6 +100,8 @@ export const hasNft = async (): Promise<boolean> => {
 };
 
 export const switchNetwork = async (): Promise<void> => {
+	console.log("switchNetwork called");
+
 	const targetNetwork = {
 		chainId: "0x13882", // 80002 in hex
 		chainName: "Polygon Amoy Testnet",
@@ -109,18 +113,43 @@ export const switchNetwork = async (): Promise<void> => {
 		},
 		blockExplorerUrls: ["https://amoy.polygonscan.com/"],
 	};
+	console.log("Target Network:", targetNetwork);
 
 	if (window.ethereum) {
+		console.log("window.ethereum is available");
+
 		try {
 			await window.ethereum.request({
-				method: "wallet_addEthereumChain",
-				params: [targetNetwork],
+				method: "wallet_switchEthereumChain",
+				params: [{ chainId: targetNetwork.chainId }],
 			});
+			console.log("Network switch request sent");
 			window.location.reload();
-		} catch (error) {
-			console.error("Failed to switch network:", error);
+			console.log("Page reloaded");
+		} catch (error: any) {
+			if (error.code === 4902) {
+				console.log("Network not found in MetaMask, adding network...");
+				try {
+					await window.ethereum.request({
+						method: "wallet_addEthereumChain",
+						params: [targetNetwork],
+					});
+					console.log("Network added, switching now...");
+					await window.ethereum.request({
+						method: "wallet_switchEthereumChain",
+						params: [{ chainId: targetNetwork.chainId }],
+					});
+					window.location.reload();
+					console.log("Page reloaded after adding network");
+				} catch (addError) {
+					console.error("Failed to add network:", addError);
+				}
+			} else {
+				console.error("Failed to switch network:", error);
+			}
 		}
 	} else {
 		console.error("Ethereum provider is not available");
+		alert("MetaMask is not installed. Please consider installing it: https://metamask.io/download.html");
 	}
 };

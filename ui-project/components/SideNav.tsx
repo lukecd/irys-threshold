@@ -4,8 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaInfoCircle, FaImages, FaBuromobelexperte } from "react-icons/fa";
 import Image from "next/image";
-import useHasNft from "@/hooks/useHasNft";
-import { connectWallet, disconnectWallet, switchNetwork } from "@/wallet-interaction/wallet-utils";
+import { connectWallet, disconnectWallet, switchNetwork, hasNft } from "@/wallet-interaction/wallet-utils";
 import { ethers } from "ethers";
 
 const SideNav: React.FC = () => {
@@ -13,7 +12,7 @@ const SideNav: React.FC = () => {
 	const [account, setAccount] = useState<string | null>(null);
 	const [nftMetadata, setNftMetadata] = useState<any>(null);
 	const [networkError, setNetworkError] = useState<boolean>(false);
-	const hasNft = useHasNft();
+	const [userHasNft, setUserHasNft] = useState<boolean>(false);
 
 	useEffect(() => {
 		const checkConnection = async () => {
@@ -26,7 +25,6 @@ const SideNav: React.FC = () => {
 						const userAccount = await signer.getAddress();
 						setAccount(userAccount);
 						setIsConnected(true);
-
 						const network = await provider.getNetwork();
 						if (network.chainId !== 80002) {
 							setNetworkError(true);
@@ -43,7 +41,9 @@ const SideNav: React.FC = () => {
 
 		const checkNftOwnership = async () => {
 			if (isConnected && account) {
-				if (hasNft) {
+				setUserHasNft(await hasNft());
+
+				if (userHasNft) {
 					const response = await fetch(process.env.NEXT_PUBLIC_NFT_METADATA_ADDRESS || "");
 					const data = await response.json();
 					setNftMetadata(data);
@@ -79,7 +79,7 @@ const SideNav: React.FC = () => {
 				<NavItem icon={<FaBuromobelexperte size={24} />} text="Mint NFT" href="/mint" />
 				<NavItem icon={<FaImages size={24} />} text="View Photos" href="/album" />
 			</div>
-			{hasNft && nftMetadata && (
+			{userHasNft && nftMetadata && (
 				<div className="mt-10 pt-10 w-full">
 					<div className="border-4 border-accentOne p-2 rounded-lg w-full">
 						<div className="relative w-full aspect-w-1 aspect-h-1">
