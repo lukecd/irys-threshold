@@ -2,14 +2,14 @@ import React from "react";
 import PhotoView from "@/components/PhotoView";
 
 const images = [
-	{ src: "9k3OeV2i20QUOd3toG6w_KKR5g0LOCu0puU4HKRoa6M", isHorizontal: true },
-	{ src: "RTXIDzsdMU_RET5y9owjYFyywJjsVtCp24lFT3jQTYE", isHorizontal: true },
-	{ src: "7yTzbRdB30q3P01aQMD7eXkGv-RdBkNbFnEWhP6BFB8", isHorizontal: true },
-	{ src: "R5sOD5Hkdva_W0D070WpJ4EHoC7vjb4qqAAfW5fgs_T8", isHorizontal: false },
-	{ src: "xVXPLdSpT9HFjJL9nFU22TUfCMikNpHdHKIHLRyJs8U", isHorizontal: true },
+	{ src: "yvM5pF5-jE74zVluJtMAad6mBKjyw9yAXORM_2hnM_Y", isHorizontal: true },
+	{ src: "xgvDnf75NcYD3l5MHZb1g9wG3Hf348x4ncYzZDx8kyA", isHorizontal: true },
+	{ src: "3e2-MzgDCDjT6Tm79Yzb3fXkx7rSvAihInXP86Utkoc", isHorizontal: true },
+	{ src: "YT-_JryldDuo590bv80ptsi65lsfgbBysAXJVU0VDzI", isHorizontal: false },
+	{ src: "GnkRcbZlxd-gAIcNNzh8OYXni0-Iva-_VJDv2F74UvI", isHorizontal: true },
 ];
-//plain text
-//https://gateway.irys.xyz/isD7URj_FqF7h_V-gfqqGgG_JmNL1xThjS1LDSRUEg8
+
+//plain text VbbFGGM0OkPUEQEslcdcsEBR0URbOWCXZpjP0rUxLVc
 
 const Page: React.FC = () => {
 	return (

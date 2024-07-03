@@ -1,20 +1,16 @@
-TO ADD
-
-- When the encrypter becomes user's devices you get end-to-end encryption
-
 # Project Overview
 
-TODO: Add screenshot
-
 This project uses [Threshold TACo](https://docs.threshold.network/) and [Irys](https://docs.irys.xyz/) to build a decentralized token gating system.
+
+![](./assets/token-gating.png)
 
 Five images are encrypted with TACo and stored permanently on-chain using Irys. To decrypt the images, users must sign a transaction proving they own with a specific NFT. For the demo, the NFT can be minted for free by anyone, although you will need some SEPOLIA ETH to cover gas fees.
 
 ## Sub-projects
 
-- `/server-encryptor` - A NodeJS script that encrypts images from the local drive. Can be customized to encrypt any data.
-- `/contract` - The NFT smart contract. Wallets that own this NFT can decrypt the images.
-- `/ui`- The token gating UI. The UI is open to anyone, but the content can only be decrypted by NFT holders.
+- `[/server-encryptor-project`](./server-encryptor-project/README.md) - A NodeJS script that encrypts images from the local drive. Can be customized to encrypt any data.
+- [`/contract-project`](./contract-project/README.md) - The NFT smart contract. Wallets that own this NFT can decrypt the images.
+- [`/ui-project`](./ui-project/README.md) - The token gating UI. The UI is open to anyone, but the content can only be decrypted by NFT holders.
 
 ## Token-Gating
 

@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { CiLock } from "react-icons/ci";
 import Spinner from "./Spinner";
-import { hasNft, switchNetwork } from "@/nft-interaction/nft-utils";
-import { getPorterUri, ThresholdMessageKit, decrypt, domains, initialize } from "@nucypher/taco";
+import { hasNft, switchNetwork } from "@/wallet-interaction/wallet-utils";
+import { getPorterUri, ThresholdMessageKit, decrypt, domains, initialize, fromBytes } from "@nucypher/taco";
 import { ethers } from "ethers";
 
 interface PhotoViewProps {
@@ -17,6 +17,7 @@ const PhotoView: React.FC<PhotoViewProps> = ({ url, isHorizontal }) => {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [nftOwner, setNftOwner] = useState<boolean>(false);
 	const [networkError, setNetworkError] = useState<boolean>(false);
+	const [decryptedImage, setDecryptedImage] = useState<string | null>(null);
 
 	useEffect(() => {
 		const checkNftOwnership = async () => {
@@ -26,10 +27,8 @@ const PhotoView: React.FC<PhotoViewProps> = ({ url, isHorizontal }) => {
 		};
 
 		const checkNetwork = async () => {
-			// @ts-ignore
 			if (window.ethereum) {
 				try {
-					// @ts-ignore
 					const provider = new ethers.providers.Web3Provider(window.ethereum);
 					const network = await provider.getNetwork();
 					if (network.chainId !== 80002) {
@@ -46,28 +45,25 @@ const PhotoView: React.FC<PhotoViewProps> = ({ url, isHorizontal }) => {
 		checkNetwork();
 	}, []);
 
+	const wait = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
 	const handleDecrypt = async () => {
 		setLoading(true);
-		// @ts-ignore
+
 		if (window.ethereum) {
 			try {
-				//@ts-ignore
 				const provider = new ethers.providers.Web3Provider(window.ethereum);
 				await provider.send("eth_requestAccounts", []);
 				const signer = provider.getSigner();
+				await initialize();
 
-				// Test data. This is just a simple encrypted string.
-				const response = await fetch(`https://gateway.irys.xyz/isD7URj_FqF7h_V-gfqqGgG_JmNL1xThjS1LDSRUEg8`);
-
-				// This decrypts the image for the component
-				// const response = await fetch(`https://gateway.irys.xyz/${url}`);
+				const response = await fetch(`https://gateway.irys.xyz/${url}`);
 				const dataJson = await response.text();
 				console.log({ dataJson });
 
 				const encryptedMessage = ThresholdMessageKit.fromBytes(Buffer.from(JSON.parse(dataJson), "hex"));
 				console.log({ encryptedMessage });
 
-				await initialize();
 				const decryptedMessage = await decrypt(
 					provider,
 					domains.TESTNET,
@@ -75,6 +71,12 @@ const PhotoView: React.FC<PhotoViewProps> = ({ url, isHorizontal }) => {
 					getPorterUri(domains.TESTNET),
 					signer,
 				);
+				console.log(`Data decrypted ==> `);
+
+				const decryptedData = fromBytes(decryptedMessage);
+				const base64Image = btoa(decryptedData);
+				const dataUrl = `data:image/png;base64,${base64Image}`;
+				setDecryptedImage(dataUrl);
 
 				setLoading(false);
 				setEncrypted(false);
@@ -108,8 +110,10 @@ const PhotoView: React.FC<PhotoViewProps> = ({ url, isHorizontal }) => {
 						<span>Mint the NFT to decrypt</span>
 					)}
 				</div>
+			) : decryptedImage ? (
+				<img src={decryptedImage} alt="Decrypted Photo" className="w-full h-full object-cover" />
 			) : (
-				<img src={url} alt="Photo" className="w-full h-full object-cover" />
+				<img src={`https://gateway.irys.xyz/${url}`} alt="Photo" className="w-full h-full object-cover" />
 			)}
 		</div>
 	);

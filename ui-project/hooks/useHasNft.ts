@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { ethers } from "ethers";
-import IrysThresholdKeyABI from "../nft-interaction/IrysThresholdKeyABI";
+import IrysThresholdKeyABI from "../wallet-interaction/IrysThresholdKeyABI";
 
 const contractAddress = process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS as string;
 

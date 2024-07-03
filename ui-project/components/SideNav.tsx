@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaInfoCircle, FaImages, FaBuromobelexperte } from "react-icons/fa";
 import Image from "next/image";
-import { ethers } from "ethers";
 import useHasNft from "@/hooks/useHasNft";
-import { switchNetwork } from "@/nft-interaction/nft-utils";
+import { connectWallet, disconnectWallet, switchNetwork } from "@/wallet-interaction/wallet-utils";
+import { ethers } from "ethers";
 
 const SideNav: React.FC = () => {
 	const [isConnected, setIsConnected] = useState(false);
@@ -17,10 +17,8 @@ const SideNav: React.FC = () => {
 
 	useEffect(() => {
 		const checkConnection = async () => {
-			//@ts-ignore
 			if (window.ethereum) {
 				try {
-					//@ts-ignore
 					const provider = new ethers.providers.Web3Provider(window.ethereum);
 					const accounts = await provider.listAccounts();
 					if (accounts.length > 0) {
@@ -56,51 +54,17 @@ const SideNav: React.FC = () => {
 		checkConnection();
 	}, [isConnected, account, hasNft]);
 
-	const connectWallet = async () => {
-		//@ts-ignore
-		if (window.ethereum) {
-			try {
-				//@ts-ignore
-				const provider = new ethers.providers.Web3Provider(window.ethereum);
-				await provider.send("eth_requestAccounts", []);
-				const signer = provider.getSigner();
-				const address = await signer.getAddress();
-				setAccount(address);
-				setIsConnected(true);
-
-				const network = await provider.getNetwork();
-				if (network.chainId !== 80002) {
-					setNetworkError(true);
-				} else {
-					setNetworkError(false);
-				}
-			} catch (error) {
-				console.error("Connection failed:", error);
-			}
-		} else {
-			console.error("Ethereum provider is not available");
-		}
+	const handleConnectWallet = async () => {
+		const { account, networkError } = await connectWallet();
+		setAccount(account);
+		setIsConnected(!!account);
+		setNetworkError(networkError);
 	};
 
-	const disconnectWallet = () => {
+	const handleDisconnectWallet = () => {
+		disconnectWallet();
 		setAccount(null);
 		setIsConnected(false);
-
-		// Clear local storage/session storage where wallets might save their state
-		localStorage.removeItem("walletconnect");
-		sessionStorage.removeItem("walletconnect");
-
-		// Clear MetaMask state if necessary
-		//@ts-ignore
-		if (window.ethereum && window.ethereum.disconnect) {
-			//@ts-ignore
-			window.ethereum.disconnect();
-		}
-
-		// Optionally, reload the page to ensure a fresh state
-		window.location.reload();
-
-		console.log("Wallet disconnected, isConnected:", isConnected, "account:", account); // Add logs to check state
 	};
 
 	const truncateAddress = (address: string | null) => {
@@ -141,12 +105,12 @@ const SideNav: React.FC = () => {
 						<p className="text-mainBg font-semibold">
 							Connected: <span className="text-accentOne">{truncateAddress(account)}</span>
 						</p>
-						<button onClick={disconnectWallet} className="bg-accentOne text-mainBg p-2 rounded-lg">
+						<button onClick={handleDisconnectWallet} className="bg-accentOne text-mainBg p-2 rounded-lg">
 							Disconnect Wallet
 						</button>
 					</div>
 				) : (
-					<button onClick={connectWallet} className="bg-accentOne text-mainBg p-2 rounded-lg">
+					<button onClick={handleConnectWallet} className="bg-accentOne text-mainBg p-2 rounded-lg">
 						Connect Wallet
 					</button>
 				)}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { hasNft, mintNft } from "@/nft-interaction/nft-utils";
+import { hasNft, mintNft } from "@/wallet-interaction/wallet-utils";
 import Image from "next/image";
 //@ts-ignore
 import confetti from "canvas-confetti";

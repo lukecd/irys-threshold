@@ -8,40 +8,40 @@ dotenv.config();
 
 ////////////////////////////////////////// CONSTANTS //////////////////////////////////////////
 
-const rpcUrl = "https://rpc-amoy.polygon.technology.";
-// const rpcUrl = "https://eth-sepolia.g.alchemy.com/v2/GhM1EP2edH5wym1A9B0u2NifZVgWAmz2";
-const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-const signer = new ethers.Wallet(process.env.PRIVATE_KEY || "", provider);
-const ritualId = 0;
-const ownNft = new conditions.predefined.erc721.ERC721Balance({
+const RPC_URL = "https://rpc-amoy.polygon.technology.";
+const PROVIDER = new ethers.providers.JsonRpcProvider(RPC_URL);
+const SIGNER = new ethers.Wallet(process.env.PRIVATE_KEY || "", PROVIDER);
+const RITUAL_ID = 0;
+const OWNS_NFT = new conditions.predefined.erc721.ERC721Balance({
 	contractAddress: "0x0e015827278f1bC4fA8d155fD7E83668A892507d",
 	chain: 80002,
 	returnValueTest: {
-		comparator: ">",
+		comparator: ">", // For demo purposes, set to >= so anyone can decrypt
 		value: 0,
 	},
 });
-const irys = new Irys({ network: "mainnet", token: "ethereum", key: process.env.PRIVATE_KEY });
-
-// Initialize the TACo library first
-await initialize();
 
 ////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////
 
-const encryptData = async (dataToEncrypt: string) => {
-	const messageKit = await encrypt(provider, domains.TESTNET, dataToEncrypt, ownNft, ritualId, signer);
+const encryptData = async (message: string): Promise<string> => {
+	const messageKit = await encrypt(PROVIDER, domains.TESTNET, message, OWNS_NFT, RITUAL_ID, SIGNER);
 	const encryptedMessageHex = toHexString(messageKit.toBytes());
-	return JSON.stringify(encryptedMessageHex);
+	return encryptedMessageHex;
 };
 
-const storeData = async (dataToStore: string) => {
-	// const dataToUpload = JSON.stringify(dataToStore);
+const storeData = async (encryptedMessageHex: string) => {
+	const dataToUpload = JSON.stringify(encryptedMessageHex);
 	const tags = [{ name: "Content-Type", value: "text/plain" }];
-	const receipt = await irys.upload(dataToStore, { tags });
-	console.log(`Data uploaded ==> https://gateway.irys.xyz/${receipt.id}`);
+	const irys = new Irys({ network: "mainnet", token: "ethereum", key: process.env.PRIVATE_KEY });
+	const receipt = await irys.upload(dataToUpload, { tags });
+	console.log(`Data uploaded to Irys ==> https://gateway.irys.xyz/${receipt.id}`);
+	return receipt.id;
 };
 
 const processImages = async (): Promise<void> => {
+	// Initialize the TACo library first
+	await initialize();
+
 	const directoryPath = path.join(__dirname, "../source-images/");
 	try {
 		const files: string[] = await fs.readdir(directoryPath);
@@ -52,8 +52,8 @@ const processImages = async (): Promise<void> => {
 				const binaryString: string = imageData.toString("binary");
 
 				try {
-					// const encryptedData: string = await encryptData(binaryString);
-					// await storeData(encryptedData);
+					const encryptedData: string = await encryptData(binaryString);
+					await storeData(encryptedData);
 					console.log(`Processed and uploaded ${file}`);
 				} catch (error) {
 					console.error(`Error processing ${file}:`, error);

@@ -7,6 +7,7 @@ import {
 	decrypt,
 	ThresholdMessageKit,
 	getPorterUri,
+	fromBytes,
 } from "@nucypher/taco";
 import fs from "fs/promises";
 import path from "path";
@@ -25,7 +26,7 @@ const OWNS_NFT = new conditions.predefined.erc721.ERC721Balance({
 	contractAddress: "0x0e015827278f1bC4fA8d155fD7E83668A892507d",
 	chain: 80002,
 	returnValueTest: {
-		comparator: ">=", // For demo purposes, set to >= so anyone can run this file
+		comparator: ">=", // For demo purposes, set to >= so anyone can decrypt
 		value: 0,
 	},
 });
@@ -56,14 +57,8 @@ const downloadData = async (txId: string): Promise<string> => {
 	return dataJson;
 };
 
-const convertToHumanReadable = (uint8Array: Uint8Array): string => {
-	const decoder = new TextDecoder("utf-8");
-	return decoder.decode(uint8Array);
-};
-
 const decryptData = async (dataJson: string): Promise<string> => {
 	const encryptedMessage = ThresholdMessageKit.fromBytes(Buffer.from(JSON.parse(dataJson), "hex"));
-	console.log(`Data parsed `);
 	const decryptedMessage = await decrypt(
 		PROVIDER,
 		domains.TESTNET,
@@ -72,7 +67,7 @@ const decryptData = async (dataJson: string): Promise<string> => {
 		SIGNER,
 	);
 	console.log(`Data decrypted ==> `);
-	console.log(convertToHumanReadable(decryptedMessage));
+	console.log(fromBytes(decryptedMessage));
 	return decryptedMessage.toString();
 };
 

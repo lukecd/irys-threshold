@@ -1,18 +1,18 @@
 # Top-level .gitignore
 
 # NodeJS project (server-encryptor)
-server-encryptor/node_modules/
-server-encryptor/dist/
-server-encryptor/.env
+server-encryptor-project/node_modules/
+server-encryptor-project/dist/
+server-encryptor-project/.env
 
 # NextJS project (ui)
-ui/node_modules/
-ui/.next/
-ui/out/
-ui/.env.local
-ui/.env.development.local
-ui/.env.test.local
-ui/.env.production.local
+ui-project/node_modules/
+ui-project/.next/
+ui-project/out/
+ui-project/.env.local
+ui-project/.env.development.local
+ui-project/.env.test.local
+ui-project/.env.production.local
 
 # Common
 .DS_Store
