@@ -26,7 +26,7 @@ Users have two options:
 2. Create a new file and paste the contract code above.
 3. Compile the contract.
 4. Deploy the contract:
-   - Select the appropriate environment (e.g., Injected Web3 for MetaMask).
+   - Select Injected Web3 for MetaMask (or any wallet).
    - Ensure you have enough funds to cover gas fees.
    - Click the "Deploy" button.
 
